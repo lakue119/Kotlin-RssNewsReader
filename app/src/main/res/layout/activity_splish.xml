@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:layout_marginLeft="@dimen/layout_side"
+    android:layout_marginRight="@dimen/layout_side"
+    tools:context=".ActivitySplish">
+
+    <View
+        android:layout_weight="1"
+        android:layout_width="1dp"
+        android:layout_height="match_parent"/>
+
+    <LinearLayout
+        android:gravity="bottom"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.lakue.newsreader.RoundedImageView
+            android:src="@drawable/worldwide"
+            android:layout_width="56dp"
+            android:layout_height="56dp"/>
+
+        <View
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"/>
+
+        <com.lakue.newsreader.RoundedImageView
+            android:padding="24dp"
+            app:rectRadius="250"
+            android:background="@color/colorGray_d"
+            android:src="@drawable/newspaper"
+            android:layout_width="168dp"
+            android:layout_height="168dp"/>
+
+        <View
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"/>
+
+        <com.lakue.newsreader.RoundedImageView
+            android:src="@drawable/live_news"
+            android:layout_width="56dp"
+            android:layout_height="56dp"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_marginTop="40dp"
+        android:layout_marginLeft="@dimen/layout_side"
+        android:layout_marginRight="@dimen/layout_side"
+
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            style="@style/StyleSplishText"
+            android:text="@string/splish_news_text1"/>
+
+        <TextView
+            style="@style/StyleSplishText"
+            android:text="@string/splish_news_text2"/>
+
+        <TextView
+            style="@style/StyleSplishText"
+            android:text="@string/splish_news_text3"/>
+
+    </LinearLayout>
+
+    <View
+        android:layout_weight="1"
+        android:layout_width="1dp"
+        android:layout_height="match_parent"/>
+
+    <TextView
+        android:id="@+id/tv_version"
+        android:layout_margin="24dp"
+        android:textSize="23sp"
+        android:text="Version Check"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+
+
+</LinearLayout>
