@@ -8,7 +8,7 @@
     android:gravity="center"
     android:layout_marginLeft="@dimen/layout_side"
     android:layout_marginRight="@dimen/layout_side"
-    tools:context=".ActivitySplish">
+    tools:context=".Activity.ActivitySplish">
 
     <View
         android:layout_weight="1"
@@ -21,7 +21,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <com.lakue.newsreader.RoundedImageView
+        <com.lakue.newsreader.View.RoundedImageView
             android:src="@drawable/worldwide"
             android:layout_width="56dp"
             android:layout_height="56dp"/>
@@ -31,7 +31,7 @@
             android:layout_width="match_parent"
             android:layout_height="1dp"/>
 
-        <com.lakue.newsreader.RoundedImageView
+        <com.lakue.newsreader.View.RoundedImageView
             android:padding="24dp"
             app:rectRadius="250"
             android:background="@color/colorGray_d"
@@ -44,7 +44,7 @@
             android:layout_width="match_parent"
             android:layout_height="1dp"/>
 
-        <com.lakue.newsreader.RoundedImageView
+        <com.lakue.newsreader.View.RoundedImageView
             android:src="@drawable/live_news"
             android:layout_width="56dp"
             android:layout_height="56dp"/>
