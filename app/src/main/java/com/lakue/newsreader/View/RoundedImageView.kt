@@ -1,26 +1,19 @@
-package com.lakue.newsreader
+package com.lakue.newsreader.View
 
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
 import android.widget.ImageView
+import com.lakue.newsreader.R
 
-class RoundedImageView : ImageView {
+class RoundedImageView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0, defStyleRes: Int = 0) :
+    ImageView(context, attrs, defStyleAttr, defStyleRes) {
     private val roundRect = RectF()
     private val maskPaint = Paint()
     private val zonePaint = Paint()
     private var rectRadius = 7f
 
-
-    constructor(context: Context?) : super(context) {
-        initView()
-    }
-
-    constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs) {
-        initView(attrs)
-    }
-
-    constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
+    init {
         initView(attrs)
     }
 
@@ -34,7 +27,9 @@ class RoundedImageView : ImageView {
     }
 
     private fun initView(attrs: AttributeSet?) {
-        val type = context.obtainStyledAttributes(attrs, R.styleable.RoundedImageView)
+        val type = context.obtainStyledAttributes(attrs,
+            R.styleable.RoundedImageView
+        )
         rectRadius = type.getFloat(R.styleable.RoundedImageView_rectRadius, 7f)
 
         maskPaint.isAntiAlias = true

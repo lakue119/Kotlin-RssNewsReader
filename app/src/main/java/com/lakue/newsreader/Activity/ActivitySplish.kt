@@ -1,12 +1,12 @@
-package com.lakue.newsreader
+package com.lakue.newsreader.Activity
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import kotlinx.android.synthetic.main.activity_splish.*
 import android.os.Handler
-
-
+import com.lakue.newsreader.BuildConfig
+import com.lakue.newsreader.R
 
 
 class ActivitySplish : AppCompatActivity() {
@@ -22,8 +22,9 @@ class ActivitySplish : AppCompatActivity() {
 
         Handler().postDelayed({
             // 1.3초 후 메인액티비티로 화면전
-            val nextIntent = Intent(this, ActivityMain::class.java)
+            val nextIntent = Intent(this, ActivityNewsList::class.java)
             startActivity(nextIntent)
+            finish()
         }, 1300)
     }
 }
