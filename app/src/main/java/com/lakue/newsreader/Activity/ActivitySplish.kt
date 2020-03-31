@@ -9,7 +9,6 @@ import com.lakue.newsreader.Base.BaseActivity
 import com.lakue.newsreader.BuildConfig
 import com.lakue.newsreader.R
 
-
 class ActivitySplish : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {

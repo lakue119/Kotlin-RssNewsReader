@@ -42,6 +42,5 @@ dependencies {
     //Jsoup
     implementation 'org.jsoup:jsoup:1.11.3'
 
-
     implementation 'com.airbnb.android:lottie:3.4.0'
 }
