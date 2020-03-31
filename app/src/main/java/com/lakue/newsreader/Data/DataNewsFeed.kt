@@ -1,4 +1,4 @@
-package com.lakue.newsreader
+package com.lakue.newsreader.Data
 
 import com.lakue.newsreader.Base.MyItem
 

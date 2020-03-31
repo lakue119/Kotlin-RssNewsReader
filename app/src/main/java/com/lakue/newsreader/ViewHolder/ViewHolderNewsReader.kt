@@ -7,7 +7,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import com.bumptech.glide.Glide
 import com.lakue.newsreader.Activity.ActivityNewsDetail
-import com.lakue.newsreader.DataNewsFeed
+import com.lakue.newsreader.Data.DataNewsFeed
 import com.lakue.newsreader.Base.MyItem
 import com.lakue.newsreader.Base.MyItemView
 import com.lakue.newsreader.R
@@ -31,7 +31,7 @@ class ViewHolderNewsReader(itemView: View) : MyItemView(itemView)  {
             data.image.isEmpty() -> rivNewsImage.visibility = View.GONE
             data.image.isNotEmpty() -> {
                 rivNewsImage.visibility = View.VISIBLE
-                Glide.with(itemView.context).load(data.image).into(rivNewsImage)
+                Glide.with(itemView.context).load(data.image).placeholder(R.drawable.loading).into(rivNewsImage)
             }
         }
 
@@ -40,8 +40,7 @@ class ViewHolderNewsReader(itemView: View) : MyItemView(itemView)  {
 
         Log.i("QWKJREKL","title" + data.title)
         Log.i("QWKJREKL","description" + data.description)
-        Log.i("QWKJREKL","keywords" +
-                data.keywords.toString())
+        Log.i("QWKJREKL","keywords" + data.keywords.toString())
         Log.i("QWKJREKL","klKeyword.count" + klKeyword.count)
 
         klKeyword.reset()
@@ -55,7 +54,7 @@ class ViewHolderNewsReader(itemView: View) : MyItemView(itemView)  {
                 klKeyword.visibility = View.VISIBLE
                 klKeyword.addKeyWord(data.keywords[0],data.keywords[1])
             }
-            data.keywords.size > 3 -> {
+            data.keywords.size >= 3 -> {
                 klKeyword.visibility = View.VISIBLE
                 klKeyword.addKeyWord(data.keywords[0],data.keywords[1],data.keywords[2])
             }

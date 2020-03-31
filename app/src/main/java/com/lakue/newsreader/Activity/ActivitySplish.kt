@@ -5,11 +5,12 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import kotlinx.android.synthetic.main.activity_splish.*
 import android.os.Handler
+import com.lakue.newsreader.Base.BaseActivity
 import com.lakue.newsreader.BuildConfig
 import com.lakue.newsreader.R
 
 
-class ActivitySplish : AppCompatActivity() {
+class ActivitySplish : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -20,6 +21,7 @@ class ActivitySplish : AppCompatActivity() {
         //현재 앱 버전이름을 가져옴
         tv_version.text = versionName
 
+        //1.3초 뒤 창 제거
         Handler().postDelayed({
             // 1.3초 후 메인액티비티로 화면전
             val nextIntent = Intent(this, ActivityNewsList::class.java)

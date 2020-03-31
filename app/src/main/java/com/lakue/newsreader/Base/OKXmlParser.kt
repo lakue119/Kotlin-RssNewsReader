@@ -1,4 +1,4 @@
-package com.lakue.newsreader
+package com.lakue.newsreader.Base
 
 import android.content.Context
 import android.os.AsyncTask

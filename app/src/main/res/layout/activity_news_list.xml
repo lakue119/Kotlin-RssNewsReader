@@ -5,14 +5,49 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/swipe_refresh"
+    android:background="@color/colorWhite"
     tools:context=".Activity.ActivityNewsList">
 
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_news_feed"
-        android:padding="@dimen/layout_side"
-        android:clipToPadding="false"
+    <com.lakue.newsreader.View.CustomNestedScrollView
+        android:id="@+id/nsc_news_list"
+        android:fillViewport="true"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent">
 
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="@color/colorWhite">
+
+                <TextView
+                    android:textStyle="bold"
+                    android:textSize="15sp"
+                    android:text="@string/news_header_title"
+                    android:id="@+id/tv_header_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/colorBlack"
+                    android:layout_centerInParent="true"/>
+
+            </RelativeLayout>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="8dp"
+                android:background="@color/colorGray_d"
+                android:layout_alignParentBottom="true"/>
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_news_feed"
+                android:paddingTop="8dp"
+                android:paddingLeft="@dimen/layout_side"
+                android:paddingRight="@dimen/layout_side"
+                android:clipToPadding="false"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+        </LinearLayout>
+    </com.lakue.newsreader.View.CustomNestedScrollView>
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

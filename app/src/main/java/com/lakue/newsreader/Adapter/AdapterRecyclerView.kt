@@ -1,4 +1,4 @@
-package com.lakue.newsreader
+package com.lakue.newsreader.Adapter
 
 import android.content.Context
 import android.view.LayoutInflater
@@ -8,6 +8,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.lakue.newsreader.Base.MyItem
 import com.lakue.newsreader.Base.MyItemView
 import com.lakue.newsreader.Listener.OnRecyclerViewCompleteListener
+import com.lakue.newsreader.R
+import com.lakue.newsreader.Type.RecyclerViewType
 import com.lakue.newsreader.ViewHolder.ViewHolderNewsReader
 
 class AdapterRecyclerView(context: Context, type: RecyclerViewType) :

@@ -1,14 +1,14 @@
 package com.lakue.newsreader.Activity
 
+import android.annotation.SuppressLint
 import android.graphics.Bitmap
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.webkit.*
 import com.lakue.newsreader.Base.BaseActivity
 import com.lakue.newsreader.Base.LoadingDialog
-import com.lakue.newsreader.DataNewsFeed
+import com.lakue.newsreader.Data.DataNewsFeed
 import com.lakue.newsreader.R
 import kotlinx.android.synthetic.main.activity_news_detail.*
 
@@ -17,20 +17,33 @@ class ActivityNewsDetail : BaseActivity() {
     lateinit var data: DataNewsFeed
     private var loadingDialog: LoadingDialog? = null
 
+    @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_news_detail)
 
+        //이전 Activity에서 뉴드 데이터 받아오기
         if (intent.hasExtra("EXTRA_NEWS_FEED")) {
             data = intent.getSerializableExtra("EXTRA_NEWS_FEED") as DataNewsFeed
+            infoLog(data.toString())
         }
 
-        tv_title.text = data.title
+        //로딩창 시작
         if (loadingDialog == null) {
             loadingDialog = LoadingDialog()
         }
         loadingDialog!!.progressON(this, "Loading...", true)
+
+        setData()
+        setWebview()
+    }
+
+    //데이터 세팅
+    private fun setData(){
+        tv_title.text = data.title
+
         when {
+            //키워드의 갯수에 따라 보여지는 뷰 분기
             data.keywords.size == 0 -> kl_keyword.visibility = View.GONE
             data.keywords.size == 1 -> {
                 kl_keyword.visibility = View.VISIBLE
@@ -40,14 +53,16 @@ class ActivityNewsDetail : BaseActivity() {
                 kl_keyword.visibility = View.VISIBLE
                 kl_keyword.addKeyWord(data.keywords[0], data.keywords[1])
             }
-            data.keywords.size > 3 -> {
+            data.keywords.size >= 3 -> {
                 kl_keyword.visibility = View.VISIBLE
                 kl_keyword.addKeyWord(data.keywords[0], data.keywords[1], data.keywords[2])
             }
         }
+    }
 
+    //웹뷰 세팅
+    private fun setWebview(){
         wv_news_feed.settings.javaScriptEnabled = true//자바스크립트 허용
-
         wv_news_feed.loadUrl(data.link)//웹뷰 실행
         wv_news_feed.settings.useWideViewPort = true
         wv_news_feed.settings.loadWithOverviewMode = true // wide viewport를 사용하도록 설정
@@ -75,6 +90,7 @@ class ActivityNewsDetail : BaseActivity() {
 
         }
 
+        //웹뷰가 다 그려진 시점
         override fun onPageFinished(view: WebView?, url: String?) {
             loadingDialog!!.progressOFF(500)
         }

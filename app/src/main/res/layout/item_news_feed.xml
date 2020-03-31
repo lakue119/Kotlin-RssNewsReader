@@ -4,7 +4,8 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="16dp">
+    android:layout_marginTop="8dp"
+    android:layout_marginBottom="8dp">
 
     <LinearLayout
         android:id="@+id/ll_feed"
@@ -17,11 +18,12 @@
             android:scaleType="centerCrop"
             android:id="@+id/riv_news_image"
             android:src="@color/colorLightBlack"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
             app:rectRadius="10" />
 
         <LinearLayout
+            android:layout_gravity="center"
             android:layout_marginLeft="8dp"
             android:gravity="center|left"
             android:orientation="vertical"
@@ -41,7 +43,6 @@
             <TextView
                 android:id="@+id/tv_news_content"
                 android:layout_marginTop="8dp"
-                android:layout_marginBottom="8dp"
                 android:textColor="@color/colorLightBlack"
                 android:textSize="13sp"
                 android:text="갤럭시S 신제품은 '갤럭시S20ㅁ지다섬자ㅣㄷ섬자ㅣㅓㄷ사밎ㄷㅅasdㅁㅈ다ㅣ섬자ㅣㄷ서ㅏㅣㅁ서ㅣㅁㅈㄷ서ㅣㅏ"
@@ -78,10 +79,17 @@
 
     </LinearLayout>
     <com.lakue.newsreader.View.KeywordLayout
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="8dp"
         android:id="@+id/kl_keyword"
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
     </com.lakue.newsreader.View.KeywordLayout>
+
+    <View
+        android:background="@color/colorGray_d"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"/>
 </LinearLayout>
