@@ -17,15 +17,6 @@ class RoundedImageView @JvmOverloads constructor(context: Context, attrs: Attrib
         initView(attrs)
     }
 
-    private fun initView() {
-        maskPaint.isAntiAlias = true
-        maskPaint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_IN)
-        zonePaint.isAntiAlias = true
-        zonePaint.color = Color.WHITE
-        val density = resources.displayMetrics.density
-        rectRadius *= density
-    }
-
     private fun initView(attrs: AttributeSet?) {
         val type = context.obtainStyledAttributes(attrs,
             R.styleable.RoundedImageView

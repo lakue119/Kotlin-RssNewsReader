@@ -6,9 +6,6 @@ import android.util.Log
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.lakue.newsreader.*
 import com.lakue.newsreader.Adapter.AdapterRecyclerView
-import com.lakue.newsreader.Base.BaseActivity
-import com.lakue.newsreader.Base.LoadingDialog
-import com.lakue.newsreader.Base.SSLConnect
 import com.lakue.newsreader.Data.DataNewsFeed
 import com.lakue.newsreader.Listener.OnRecyclerViewCompleteListener
 import com.lakue.newsreader.Type.RecyclerViewType
@@ -22,12 +19,30 @@ import javax.xml.parsers.DocumentBuilderFactory
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 import android.annotation.SuppressLint
+import android.widget.Toast
+import com.lakue.newsreader.Base.*
 import com.lakue.newsreader.Listener.OnScrollViewStateListener
 import com.lakue.newsreader.Type.CustomScrollView
 import java.io.IOException
+import kotlin.coroutines.coroutineContext
 
 
 class ActivityNewsList : BaseActivity() {
+
+    companion object {
+        private var startItem = 0
+        private var maxItemCount = 0
+        private const val SHOWITEMCOUNT = 7
+        private var endItem = 0
+        private var isLoading = false
+        private var isLastPage = false
+
+        var arrFeed: ArrayList<DataNewsFeed> = ArrayList()
+        @SuppressLint("StaticFieldLeak")
+        lateinit var adapter: AdapterRecyclerView
+        private var loadingDialog: LoadingDialog? = null
+
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,26 +70,37 @@ class ActivityNewsList : BaseActivity() {
 
         //당겨서 새로고침
         swipe_refresh.setOnRefreshListener {
-            infoLog("Refresh")
-            adapter.reset()
-            startItem = 0
-            maxItemCount = 0
-            endItem = 0
-            isLastPage = false
-            val v = OKXmlParser()
-            v.execute(url)
-            loadingDialog!!.progressON(this, "Loading...", true)
-            swipe_refresh.isRefreshing = false
+            setRefresh(url)
         }
     }
 
+    //새로고침 기능수행 중 데이터 초기화
+    private fun setRefresh(url: String){
+        var itemCount =  arrFeed.size
+
+        adapter.reset()
+        startItem = 0
+        maxItemCount = 0
+        endItem = 0
+        isLastPage = false
+        arrFeed.clear()
+        swipe_refresh.isRefreshing = false
+
+        val v = OKXmlParser()
+        v.execute(url)
+
+        loadingDialog!!.progressON(this, "Loading...", true)
+
+        infoLog("Refresh")
+        infoLog("Refresh arrFeed.size : $itemCount")
+    }
+
     //RecyclerView 세팅
-    fun setRecyclerViewInit() {
+    private fun setRecyclerViewInit() {
         val linearlayoutManager = LinearLayoutManager(this)
         rv_news_feed.layoutManager = linearlayoutManager
         rv_news_feed.setHasFixedSize(true)
         rv_news_feed.setItemViewCacheSize(20)
-//        rv_news_feed.addItemDecoration(DividerItemDecoration(this,DividerItemDecoration.VERTICAL))
         adapter = AdapterRecyclerView(this, RecyclerViewType.NEWS_FEED)
 
         rv_news_feed.adapter = adapter
@@ -86,9 +112,12 @@ class ActivityNewsList : BaseActivity() {
             }
         })
 
+
         nsc_news_list.setOnScrollViewStateListener(object : OnScrollViewStateListener{
             override fun onScrollViewState(state: CustomScrollView) {
+                infoLog("Bottom")
                 if(!isLoading && !isLastPage){
+                    infoLog("MoreData")
                     isLoading = true
                     startItem += SHOWITEMCOUNT
                     val v = JsoupAsyncTask()
@@ -123,12 +152,10 @@ class ActivityNewsList : BaseActivity() {
                     val linkNodeList = element.getElementsByTagName("link")
                     val title = titleNodeList.item(0).childNodes.item(0).nodeValue
                     val link = linkNodeList.item(0).childNodes.item(0).nodeValue
-                    var image = ""
-                    var description = ""
-                    var keywords: ArrayList<String> = ArrayList()
+                    val keywords: ArrayList<String> = ArrayList()
 
                     //데이터 저장
-                    var dataNewsFeed =
+                    val dataNewsFeed =
                         DataNewsFeed(
                             i.toString(),
                             title,
@@ -139,22 +166,23 @@ class ActivityNewsList : BaseActivity() {
                         )
                     arrFeed.add(dataNewsFeed)
                 }
+                Log.i("ActivityNewsListTAG", "OKXmlParser arrFeed.size : " + arrFeed.size)
                 maxItemCount = arrFeed.size
             } catch (e: Exception) {
                 Log.e("OKXmlParserException", e.toString())
-//                Toast.makeText(mContext, e.toString(), Toast.LENGTH_SHORT).show()
             }
             return null
         }
 
         //비동기처리가 완료되었을 때 실행
         override fun onPostExecute(result: Void?) {
+            Log.i("ActivityNewsListTAG", "OKXmlParser startItem : $startItem")
+            Log.i("ActivityNewsListTAG", "OKXmlParser endItem : $endItem")
+            Log.i("ActivityNewsListTAG", "OKXmlParser maxItemCount : $maxItemCount")
+            Log.i("ActivityNewsListTAG", "OKXmlParser isLoading : $isLoading")
+            Log.i("ActivityNewsListTAG", "OKXmlParser isLastPage : $isLastPage")
             val v = JsoupAsyncTask()
             v.execute(arrFeed)
-
-//            for (item in arrFeed!!) {
-//                adapter.addItem(item)
-//            }
         }
     }
 
@@ -200,7 +228,7 @@ class ActivityNewsList : BaseActivity() {
                     }
 
                     //키워드 가져오기
-                    keywords = getKeyWords(description)
+                    keywords = ExtractKeyWord.getKeyWords(description)
 
                     params[0]!![i].description = description
                     params[0]!![i].image = image
@@ -210,97 +238,35 @@ class ActivityNewsList : BaseActivity() {
 
             } catch (e: IOException) {
                 e.printStackTrace()
+            } catch (e: java.lang.Exception){
+                e.printStackTrace()
             }
 
             return null
         }
 
-        override fun onPreExecute() {
-            super.onPreExecute()
-        }
+        // doInBackground 작업 후 작업
+        override fun onPostExecute(arrFeed: ArrayList<DataNewsFeed>) {
+            adapter.removeLoading()
+            Log.i("ActivityNewsListTAG", "JsoupAsyncTask startItem : $startItem")
+            Log.i("ActivityNewsListTAG", "JsoupAsyncTask endItem : $endItem")
+            Log.i("ActivityNewsListTAG", "JsoupAsyncTask maxItemCount : $maxItemCount")
+            Log.i("ActivityNewsListTAG", "JsoupAsyncTask isLoading : $isLoading")
+            Log.i("ActivityNewsListTAG", "JsoupAsyncTask isLastPage : $isLastPage")
 
-
-        override fun onPostExecute(arrFeed: ArrayList<DataNewsFeed>) { // doInBackground 작업 후 작업
             for(i in startItem until endItem){
                 adapter.addItem(arrFeed[i])
             }
-            isLoading = false
-        }
-    }
 
-    companion object {
-        private var startItem = 0
-        private var maxItemCount = 0
-        private val SHOWITEMCOUNT = 6
-        private var endItem = 0
-        private var isLoading = false
-        private var isLastPage = false
-
-        var arrFeed: ArrayList<DataNewsFeed> = ArrayList()
-        lateinit var adapter: AdapterRecyclerView
-        private var loadingDialog: LoadingDialog? = null
-        //        }
-        fun getKeyWords(description: String): ArrayList<String> {
-            val removeSpecialCharacters: String =
-                SpecialCharactersRreplace(description)
-            var feedKeyword: ArrayList<String> = ArrayList()
-            //띄어쓰기마다 split
-            val keywords: ArrayList<String> =
-                removeSpecialCharacters.split(" ") as ArrayList<String>
-            val keywordMap: HashMap<String, Int> = HashMap()
-
-            var isKeyWordEquare = false
-            for (keyword in keywords) {
-                var trimKeyword = keyword.trim()
-                //키워드 글자수가 2글자 이상인지 판단
-                if (trimKeyword.length < 2)
-                    continue
-
-                //처음 해쉬맵안에 데이터가 비어있으면 키워드(key)와 갯수(value:1)지정
-                if (keywordMap.isEmpty()) {
-                    keywordMap.set(trimKeyword, 1)
-                } else {
-                    //해쉬맵 안에 있는 키워드일 경우 value+1을 해주고,
-                    //없을 경우 키워드(key)와 갯수(value:1)지정
-                    for (key in keywordMap) {
-                        if (key.key == trimKeyword) {
-                            var count = keywordMap.get(trimKeyword)
-                            count = count?.plus(1)
-                            keywordMap.set(trimKeyword, count!!)
-                            isKeyWordEquare = true
-                            break
-                        } else {
-                            isKeyWordEquare = false
-                        }
-                    }
-                    if (!isKeyWordEquare) {
-                        keywordMap.set(trimKeyword, 1)
-                    }
+            if (endItem < maxItemCount) {
+                adapter.addLoading()
+            } else {
+                if(endItem > 0){
+                    isLastPage = true
                 }
             }
 
-            //받아온 키워드를 키값으로 오름차순 정렬(숫자,영어,ㄱ,ㄴ,ㄷ순)
-            val result = keywordMap.toList().sortedBy { (key, _) -> key }.toMap()
-
-            //정렬한 키워드에서 다시 갯수대로 내림차순 정렬(가장 많이 사용한 키워드가 맨 앞으로 오도록)
-            val result1 = result.toList().sortedByDescending { (_, value) -> value }.toMap()
-
-            Log.e("sortKeyword", result1.toString())
-            feedKeyword = ArrayList(result1.keys)
-
-            return feedKeyword
-        }
-
-        //특수문자, 개행 제거
-        fun SpecialCharactersRreplace(str: String): String {
-            var str = str
-            val match = "[^\uAC00-\uD7A3xfe0-9a-zA-Z\\s]"
-            str = str.replace(match.toRegex(), "")
-            str = str.replace("\n", "")
-            str = str.replace("\t", " ")
-            return str
+            isLoading = false
         }
     }
-
-
 }

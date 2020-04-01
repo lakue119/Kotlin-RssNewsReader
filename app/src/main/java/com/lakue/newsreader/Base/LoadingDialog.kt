@@ -27,29 +27,15 @@ class LoadingDialog {
         if (progressDialog != null && progressDialog!!.isShowing) {
             progressSET(message)
         } else {
-
             progressDialog = AppCompatDialog(activity)
             progressDialog!!.setCancelable(false)
             progressDialog!!.window!!.setBackgroundDrawable(ColorDrawable(android.graphics.Color.TRANSPARENT))
             progressDialog!!.setContentView(R.layout.dialog_loading)
             progressDialog!!.show()
-
         }
-        //final ImageView img_loading_frame = (ImageView) progressDialog.findViewById(R.id.iv_frame_loading);
 
-        val lottieLoading =
-            progressDialog!!.findViewById<View>(R.id.lottie_loading) as LottieAnimationView?
         val tvProgressMessage =
-            progressDialog!!.findViewById<View>(R.id.tv_progress_message) as TextView?
-
-        if (showImage!!) {
-            lottieLoading!!.visibility = View.VISIBLE
-            tvProgressMessage!!.visibility = View.VISIBLE
-        } else {
-            lottieLoading!!.visibility = View.GONE
-            tvProgressMessage!!.visibility = View.GONE
-        }
-
+            progressDialog!!.findViewById<View>(R.id.tv_progress_message) as TextView
 
         if (!TextUtils.isEmpty(message)) {
             tvProgressMessage.text = message
@@ -83,7 +69,7 @@ class LoadingDialog {
             if (progressDialog != null && progressDialog!!.isShowing) {
                 progressDialog!!.dismiss()
             }
-        }, sleepTime.toLong())// 0.5초 정도 딜레이를 준 후 시작
+        }, sleepTime.toLong())// 딜레이를 준 후 시작
 
     }
 

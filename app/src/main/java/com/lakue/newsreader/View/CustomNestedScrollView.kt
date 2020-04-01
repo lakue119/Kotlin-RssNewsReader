@@ -13,7 +13,7 @@ class CustomNestedScrollView @JvmOverloads constructor(context: Context, attrs: 
     override fun onScrollChanged(scrollX: Int, scrollY: Int, oldScrollX: Int, oldScrollY: Int) {
         super.onScrollChanged(scrollX, scrollY, oldScrollX, oldScrollY)
 
-        if (scrollY > this.getChildAt(0).measuredHeight - this.measuredHeight - 1000) {
+        if (scrollY > this.getChildAt(0).measuredHeight - this.measuredHeight - 3000) {
             onScrollViewStateListener.onScrollViewState(CustomScrollView.BOTTOM)
         }
     }

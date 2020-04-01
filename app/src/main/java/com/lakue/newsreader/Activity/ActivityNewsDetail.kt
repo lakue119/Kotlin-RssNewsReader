@@ -86,6 +86,7 @@ class ActivityNewsDetail : BaseActivity() {
            // showToast("오류 : $request")
         }
 
+        //웹뷰가 시작한 시점
         override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
 
         }

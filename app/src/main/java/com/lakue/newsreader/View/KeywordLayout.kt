@@ -24,9 +24,6 @@ class KeywordLayout @JvmOverloads constructor(context: Context, attrs: Attribute
     }
 
     fun addKeyWord(vararg keyword: String) {
-//        if (count > 2) {
-//            return
-//        }
         val ll = LinearLayout(context)
         ll.orientation = HORIZONTAL
 
@@ -58,7 +55,6 @@ class KeywordLayout @JvmOverloads constructor(context: Context, attrs: Attribute
                 textView.background =
                     context.getDrawable(R.drawable.background_rounding_20_white_stroke_black)
             }
-
             ll.addView(textView)
         }
 
