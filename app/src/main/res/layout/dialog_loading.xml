@@ -29,7 +29,7 @@
             android:layout_alignStart="@+id/lottie_loading"
             android:layout_alignEnd="@+id/lottie_loading"
             android:layout_alignBottom="@+id/lottie_loading"
-            android:text="Loading.."
+            android:text="@string/loadingText"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:textColor="#dddddd" />
 

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -24,17 +25,17 @@
 
         <LinearLayout
             android:layout_gravity="center"
-            android:layout_marginLeft="8dp"
+            android:layout_marginStart="8dp"
             android:gravity="center|left"
             android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            tools:ignore="RtlHardcoded">
 
             <TextView
                 android:id="@+id/tv_news_title"
                 android:textColor="@color/colorBlack"
                 android:textSize="16sp"
-                android:text="갤럭시S 신제품은 '갤럭시S20ㅁ지다섬자ㅣㄷ섬자ㅣㅓㄷ사밎ㄷㅅ"
                 android:maxLines="1"
                 android:ellipsize="end"
                 android:layout_width="wrap_content"
@@ -45,36 +46,10 @@
                 android:layout_marginTop="8dp"
                 android:textColor="@color/colorLightBlack"
                 android:textSize="13sp"
-                android:text="갤럭시S 신제품은 '갤럭시S20ㅁ지다섬자ㅣㄷ섬자ㅣㅓㄷ사밎ㄷㅅasdㅁㅈ다ㅣ섬자ㅣㄷ서ㅏㅣㅁ서ㅣㅁㅈㄷ서ㅣㅏ"
                 android:maxLines="2"
                 android:ellipsize="end"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
-
-            <!--            <LinearLayout-->
-            <!--                android:id="@+id/ll_keywords"-->
-            <!--                android:orientation="horizontal"-->
-            <!--                android:layout_width="wrap_content"-->
-            <!--                android:layout_height="wrap_content">-->
-
-            <!--                <TextView-->
-            <!--                    android:id="@+id/tv_news_keyword1"-->
-            <!--                    android:text="갤럭시S20"-->
-            <!--                    style="@style/StyleKeywordText"/>-->
-
-            <!--                <TextView-->
-            <!--                    android:id="@+id/tv_news_keyword2"-->
-            <!--                    android:text="갤럭시S20"-->
-            <!--                    style="@style/StyleKeywordText"/>-->
-
-            <!--                <TextView-->
-            <!--                    android:id="@+id/tv_news_keyword3"-->
-            <!--                    android:text="갤럭시S20"-->
-            <!--                    style="@style/StyleKeywordText"/>-->
-            <!--            </LinearLayout>-->
-
-
-
         </LinearLayout>
 
     </LinearLayout>

@@ -60,7 +60,7 @@ object ExtractKeyWord{
     fun SpecialCharactersRreplace(str: String): String {
         var str = str
         val match = "[^\uAC00-\uD7A3xfe0-9a-zA-Z\\s]"
-        str = str.replace(match.toRegex(), "")
+        str = str.replace(match.toRegex(), " ")
         str = str.replace("\n", "")
         str = str.replace("\t", " ")
         return str

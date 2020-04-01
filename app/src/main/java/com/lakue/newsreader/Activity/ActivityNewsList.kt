@@ -17,36 +17,39 @@ import org.xml.sax.InputSource
 import java.net.URL
 import javax.xml.parsers.DocumentBuilderFactory
 import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
 import android.annotation.SuppressLint
-import android.widget.Toast
 import com.lakue.newsreader.Base.*
 import com.lakue.newsreader.Listener.OnScrollViewStateListener
 import com.lakue.newsreader.Type.CustomScrollView
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import java.io.IOException
-import kotlin.coroutines.coroutineContext
 
 
 class ActivityNewsList : BaseActivity() {
 
     companion object {
-        private var startItem = 0
-        private var maxItemCount = 0
         private const val SHOWITEMCOUNT = 7
-        private var endItem = 0
-        private var isLoading = false
-        private var isLastPage = false
-
-        var arrFeed: ArrayList<DataNewsFeed> = ArrayList()
-        @SuppressLint("StaticFieldLeak")
-        lateinit var adapter: AdapterRecyclerView
-        private var loadingDialog: LoadingDialog? = null
-
     }
+
+    private var startItem = 0
+    private var maxItemCount = 0
+    private var endItem = 0
+    private var isLoading = false
+    private var isLastPage = false
+    private var isFinish = false
+
+
+    var arrFeed: ArrayList<DataNewsFeed> = ArrayList()
+    lateinit var adapter: AdapterRecyclerView
+    private var loadingDialog: LoadingDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_news_list)
+
 
         //rss url 지정
         var url = "https://news.google.com/rss?hl=ko&gl=KR&ceid=KR:ko"
@@ -64,13 +67,18 @@ class ActivityNewsList : BaseActivity() {
         var sslConnect = SSLConnect()
         sslConnect.postHttps(url, 1000, 1000)
 
-        //rss parsing
-        val v = OKXmlParser()
-        v.execute(url)
+        RssListTask(url)
 
         //당겨서 새로고침
         swipe_refresh.setOnRefreshListener {
-            setRefresh(url)
+            swipe_refresh.isRefreshing = false
+            //데이터가 쌓이는 도중에 당겨서 새로고침 못하도록 예외처리
+            if(isLoading){
+                showToast("로딩이 끝나면 다시시도해주세요")
+            } else{
+                setRefresh(url)
+            }
+
         }
     }
 
@@ -84,10 +92,8 @@ class ActivityNewsList : BaseActivity() {
         endItem = 0
         isLastPage = false
         arrFeed.clear()
-        swipe_refresh.isRefreshing = false
 
-        val v = OKXmlParser()
-        v.execute(url)
+        RssListTask(url)
 
         loadingDialog!!.progressON(this, "Loading...", true)
 
@@ -119,140 +125,127 @@ class ActivityNewsList : BaseActivity() {
                 if(!isLoading && !isLastPage){
                     infoLog("MoreData")
                     isLoading = true
-                    startItem += SHOWITEMCOUNT
-                    val v = JsoupAsyncTask()
-                    v.execute(arrFeed)
+                    startItem += Companion.SHOWITEMCOUNT
+                    metaDataTask()
                 }
             }
 
         })
     }
 
-    //RSS parse 데이터 가져오기
-    class OKXmlParser :
-        AsyncTask<String?, Void?, Void?>() {
-        override fun doInBackground(vararg params: String?): Void? {
-            val url: URL
-            var document: Document?
+    //url에서 피드 리스트를 가져옴..
+    //이미지,내용을 제외한 제목, 링크만 가져와서 저장
+    private fun RssListTask(param: String) {
+        CoroutineScope(Dispatchers.Main).launch {
+            // Show progress from UI thread
 
-            try {
-                url = URL(params[0])
-                val dbf =
-                    DocumentBuilderFactory.newInstance()
-                val db = dbf.newDocumentBuilder()
-                document = db.parse(InputSource(url.openStream()))
-                document.documentElement.normalize()
+            CoroutineScope(Dispatchers.Default).async {
+                // background thread
+                val url: URL
+                val document: Document?
+                try {
+                    url = URL(param)
+                    val dbf =
+                        DocumentBuilderFactory.newInstance()
+                    val db = dbf.newDocumentBuilder()
+                    document = db.parse(InputSource(url.openStream()))
+                    document.documentElement.normalize()
 
-                //item에 있는 title, link 가져오기
-                val itemNodeList = document!!.getElementsByTagName("item")
-                for (i in 0 until itemNodeList.length) {
-                    val node = itemNodeList.item(i)
-                    val element = node as Element
-                    val titleNodeList = element.getElementsByTagName("title")
-                    val linkNodeList = element.getElementsByTagName("link")
-                    val title = titleNodeList.item(0).childNodes.item(0).nodeValue
-                    val link = linkNodeList.item(0).childNodes.item(0).nodeValue
-                    val keywords: ArrayList<String> = ArrayList()
+                    //item에 있는 title, link 가져오기
+                    val itemNodeList = document!!.getElementsByTagName("item")
+                    for (i in 0 until itemNodeList.length) {
+                        val node = itemNodeList.item(i)
+                        val element = node as Element
+                        val titleNodeList = element.getElementsByTagName("title")
+                        val linkNodeList = element.getElementsByTagName("link")
+                        val title = titleNodeList.item(0).childNodes.item(0).nodeValue
+                        val link = linkNodeList.item(0).childNodes.item(0).nodeValue
+                        val keywords: ArrayList<String> = ArrayList()
 
-                    //데이터 저장
-                    val dataNewsFeed =
-                        DataNewsFeed(
-                            i.toString(),
-                            title,
-                            link,
-                            "",
-                            "",
-                            keywords
-                        )
-                    arrFeed.add(dataNewsFeed)
+                        //데이터 저장
+                        val dataNewsFeed =
+                            DataNewsFeed(
+                                i.toString(),
+                                title,
+                                link,
+                                "",
+                                "",
+                                keywords
+                            )
+                        arrFeed.add(dataNewsFeed)
+                    }
+                    infoLog("RssListTask arrFeed.size : " + arrFeed.size)
+                    maxItemCount = arrFeed.size
+
+                    metaDataTask()
+
+                } catch (e: Exception) {
+                    errorLog(e.toString())
                 }
-                Log.i("ActivityNewsListTAG", "OKXmlParser arrFeed.size : " + arrFeed.size)
-                maxItemCount = arrFeed.size
-            } catch (e: Exception) {
-                Log.e("OKXmlParserException", e.toString())
-            }
-            return null
-        }
 
-        //비동기처리가 완료되었을 때 실행
-        override fun onPostExecute(result: Void?) {
-            Log.i("ActivityNewsListTAG", "OKXmlParser startItem : $startItem")
-            Log.i("ActivityNewsListTAG", "OKXmlParser endItem : $endItem")
-            Log.i("ActivityNewsListTAG", "OKXmlParser maxItemCount : $maxItemCount")
-            Log.i("ActivityNewsListTAG", "OKXmlParser isLoading : $isLoading")
-            Log.i("ActivityNewsListTAG", "OKXmlParser isLastPage : $isLastPage")
-            val v = JsoupAsyncTask()
-            v.execute(arrFeed)
+            }.await()
+            // UI data update from UI thread
+            // Hide Progress from UI thread
         }
     }
 
-    @SuppressLint("StaticFieldLeak")
-    class JsoupAsyncTask :
-        AsyncTask<ArrayList<DataNewsFeed>, Void, ArrayList<DataNewsFeed>>() {
-        override fun doInBackground(vararg params: ArrayList<DataNewsFeed>?): ArrayList<DataNewsFeed>? {
-            try {
-                endItem = startItem + SHOWITEMCOUNT
+    //위에서 생성한 리스트에서 keyword, image, description 추가
+    fun metaDataTask() {
+        CoroutineScope(Dispatchers.Main).launch {
+            // Show progress from UI thread
+
+            CoroutineScope(Dispatchers.Default).async {
+                // background thread
+                endItem = startItem + Companion.SHOWITEMCOUNT
                 if(endItem > maxItemCount){
                     endItem = maxItemCount
                     isLastPage = true
                 }
 
                 for (i in startItem until endItem) {
-                    Log.e("QRWKJKL",params[0]!![i].title)
+                    infoLog(arrFeed[i].title)
                     var image = ""
                     var description = ""
                     var keywords: ArrayList<String> = ArrayList()
 
-                    val con = Jsoup.connect(params[0]!![i].link)
+                    val con = Jsoup.connect(arrFeed[i].link)
                     val doc = con.get()
                     val ogTags = doc.select("meta[property^=og:]")
-                    if (ogTags.size <= 0) {
-                        params[0]!![i].description = description
-                        params[0]!![i].image = image
-                        params[0]!![i].keywords = keywords
-                        continue
-                    }
-
-                    for (indice in ogTags.indices) {
-                        val tag = ogTags[indice]
-                        val text = tag.attr("property")
-                        if ("og:image" == text) {
-                            image = tag.attr("content")
-                        } else if ("og:description" == text) {
-                            description = tag.attr("content")
+                    if (ogTags.size > 0) {
+                        for (indice in ogTags.indices) {
+                            val tag = ogTags[indice]
+                            val text = tag.attr("property")
+                            if ("og:image" == text) {
+                                image = tag.attr("content")
+                            } else if ("og:description" == text) {
+                                description = tag.attr("content")
+                            }
                         }
+
                     }
 
                     if (description.isEmpty()) {
-                        description = params[0]!![i].title
+                        description = arrFeed[i].title
                     }
 
                     //키워드 가져오기
                     keywords = ExtractKeyWord.getKeyWords(description)
 
-                    params[0]!![i].description = description
-                    params[0]!![i].image = image
-                    params[0]!![i].keywords = keywords
+                    arrFeed[i].description = description
+                    arrFeed[i].image = image
+                    arrFeed[i].keywords = keywords
+
                 }
-                return params[0]
 
-            } catch (e: IOException) {
-                e.printStackTrace()
-            } catch (e: java.lang.Exception){
-                e.printStackTrace()
-            }
-
-            return null
-        }
-
-        // doInBackground 작업 후 작업
-        override fun onPostExecute(arrFeed: ArrayList<DataNewsFeed>) {
+            }.await()
+            // UI data update from UI thread
+            // Hide Progress from UI thread
             adapter.removeLoading()
-            Log.i("ActivityNewsListTAG", "JsoupAsyncTask startItem : $startItem")
-            Log.i("ActivityNewsListTAG", "JsoupAsyncTask endItem : $endItem")
-            Log.i("ActivityNewsListTAG", "JsoupAsyncTask maxItemCount : $maxItemCount")
-            Log.i("ActivityNewsListTAG", "JsoupAsyncTask isLoading : $isLoading")
-            Log.i("ActivityNewsListTAG", "JsoupAsyncTask isLastPage : $isLastPage")
+            infoLog("metaDataTask startItem : $startItem")
+            infoLog("metaDataTask endItem : $endItem")
+            infoLog("metaDataTask maxItemCount : $maxItemCount")
+            infoLog("metaDataTask isLoading : $isLoading")
+            infoLog("metaDataTask isLastPage : $isLastPage")
 
             for(i in startItem until endItem){
                 adapter.addItem(arrFeed[i])
@@ -267,6 +260,8 @@ class ActivityNewsList : BaseActivity() {
             }
 
             isLoading = false
+            isFinish = true
+
         }
     }
 }

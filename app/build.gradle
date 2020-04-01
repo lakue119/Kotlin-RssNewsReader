@@ -21,6 +21,13 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
+    //More than one file was found with OS independent path 'asm-license.txt'
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/ASL2.0'
+    }
+
 }
 
 dependencies {
@@ -38,6 +45,10 @@ dependencies {
     androidTestImplementation 'androidx.test:core:1.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-intents:3.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-contrib:3.2.0'
+
+
+    androidTestImplementation 'org.hamcrest:hamcrest-library:1.3'
+
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
 
     //Glide 이미지변환
@@ -50,4 +61,20 @@ dependencies {
     implementation 'com.airbnb.android:lottie:3.4.0'
 
     implementation 'commons-io:commons-io:2.4'
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.2.1"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.2.1"
+
+    //코틀린 테스트코드 작성
+//    implementation 'com.crittercism.dexmaker:dexmaker-mockito:1.4'
+//    implementation 'com.jayway.awaitility:awaitility:1.7.0'
+//    androidTestImplementation 'com.jayway.awaitility:awaitility:1.7.0'
+
+//    androidTestImplementation "org.jetbrains.kotlin:kotlin-test-junit:$rootProject.ext.kotlin_version"
+//    androidTestImplementation 'com.android.support.test.espresso:espresso-contrib:2.2.2', {
+//        exclude group: 'com.android.support', module: 'support-annotations'
+//        exclude group: 'com.android.support', module: 'support-v4'
+//        exclude group: 'com.android.support', module: 'design'
+//        exclude group: 'com.android.support', module: 'recyclerview-v7'
+//    }
+
 }
