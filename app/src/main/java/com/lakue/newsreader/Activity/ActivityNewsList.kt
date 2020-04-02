@@ -25,6 +25,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import org.jsoup.HttpStatusException
 import java.io.IOException
 
 
@@ -49,7 +50,7 @@ class ActivityNewsList : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_news_list)
-
+        overridePendingTransition(R.anim.enter_from_right, R.anim.exit_to_left)
 
         //rss url 지정
         var url = "https://news.google.com/rss?hl=ko&gl=KR&ceid=KR:ko"
@@ -196,7 +197,7 @@ class ActivityNewsList : BaseActivity() {
 
             CoroutineScope(Dispatchers.Default).async {
                 // background thread
-                endItem = startItem + Companion.SHOWITEMCOUNT
+                endItem = startItem + SHOWITEMCOUNT
                 if(endItem > maxItemCount){
                     endItem = maxItemCount
                     isLastPage = true
@@ -208,21 +209,28 @@ class ActivityNewsList : BaseActivity() {
                     var description = ""
                     var keywords: ArrayList<String> = ArrayList()
 
-                    val con = Jsoup.connect(arrFeed[i].link)
-                    val doc = con.get()
-                    val ogTags = doc.select("meta[property^=og:]")
-                    if (ogTags.size > 0) {
-                        for (indice in ogTags.indices) {
-                            val tag = ogTags[indice]
-                            val text = tag.attr("property")
-                            if ("og:image" == text) {
-                                image = tag.attr("content")
-                            } else if ("og:description" == text) {
-                                description = tag.attr("content")
+                    try {
+                        val con = Jsoup.connect(arrFeed[i].link).ignoreHttpErrors(true)
+                        val doc = con.get()
+                        val ogTags = doc.select("meta[property^=og:]")
+                        if (ogTags.size > 0) {
+                            for (indice in ogTags.indices) {
+                                val tag = ogTags[indice]
+                                val text = tag.attr("property")
+                                if ("og:image" == text) {
+                                    image = tag.attr("content")
+                                } else if ("og:description" == text) {
+                                    description = tag.attr("content")
+                                }
                             }
-                        }
 
+                        }
+                    } catch (e: HttpStatusException){
+                        errorLog(e.toString())
+                    } catch (e: java.lang.Exception){
+                        errorLog(e.toString())
                     }
+
 
                     if (description.isEmpty()) {
                         description = arrFeed[i].title
@@ -240,12 +248,13 @@ class ActivityNewsList : BaseActivity() {
             }.await()
             // UI data update from UI thread
             // Hide Progress from UI thread
-            adapter.removeLoading()
             infoLog("metaDataTask startItem : $startItem")
             infoLog("metaDataTask endItem : $endItem")
             infoLog("metaDataTask maxItemCount : $maxItemCount")
             infoLog("metaDataTask isLoading : $isLoading")
             infoLog("metaDataTask isLastPage : $isLastPage")
+
+            adapter.removeLoading()
 
             for(i in startItem until endItem){
                 adapter.addItem(arrFeed[i])

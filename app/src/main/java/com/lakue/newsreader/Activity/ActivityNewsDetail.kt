@@ -21,6 +21,7 @@ class ActivityNewsDetail : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_news_detail)
+        overridePendingTransition(R.anim.enter_from_right, R.anim.exit_to_left)
 
         //이전 Activity에서 뉴드 데이터 받아오기
         if (intent.hasExtra("EXTRA_NEWS_FEED")) {
@@ -36,6 +37,11 @@ class ActivityNewsDetail : BaseActivity() {
 
         setData()
         setWebview()
+    }
+
+    override fun finish() {
+        super.finish()
+        overridePendingTransition(R.anim.enter_from_left, R.anim.exit_to_right)
     }
 
     //데이터 세팅
